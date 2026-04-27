@@ -1,7 +1,7 @@
 ---
 - name: Configure web server and deploy Flask app
   hosts: webservers
-  become: true   # use sudo
+  become: true
   vars:
     app_dir: /opt/flask-app
     app_user: flaskapp
@@ -35,16 +35,32 @@
         owner: "{{ app_user }}"
         group: "{{ app_user }}"
 
-    - name: Copy app files
+    - name: Create tarball of app files locally
+      delegate_to: localhost
+      become: false
+      archive:
+        path:
+          - "../app/app.py"
+          - "../app/requirements.txt"
+          - "../app/test_app.py"
+        dest: /tmp/flask-app.tar.gz
+        format: gz
+
+    - name: Copy tarball to server
       copy:
-        src: "../app/"
+        src: /tmp/flask-app.tar.gz
+        dest: /tmp/flask-app.tar.gz
+      notify: Restart flaskapp
+
+    - name: Extract tarball into app dir
+      unarchive:
+        src: /tmp/flask-app.tar.gz
         dest: "{{ app_dir }}/"
+        remote_src: yes
         owner: "{{ app_user }}"
         group: "{{ app_user }}"
-      loop:
-        - app.py
-        - requirements.txt
-        - test_app.py
+        extra_opts:
+          - "--strip-components=2"
       notify: Restart flaskapp
 
     - name: Create Python virtualenv and install dependencies
