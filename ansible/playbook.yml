@@ -41,6 +41,10 @@
         dest: "{{ app_dir }}/"
         owner: "{{ app_user }}"
         group: "{{ app_user }}"
+      loop:
+        - app.py
+        - requirements.txt
+        - test_app.py
       notify: Restart flaskapp
 
     - name: Create Python virtualenv and install dependencies
