@@ -27,11 +27,11 @@ pipeline {
             }
         }
 
-        stage('Build Docker image') {
-            steps {
-                sh 'docker build -t flask-app:${BUILD_NUMBER} ./app'
-            }
-        }
+      //   stage('Build Docker image') {
+      //       steps {
+      //           sh 'docker build -t flask-app:${BUILD_NUMBER} ./app'
+      //       }
+      //   }
 
         stage('Configure & deploy') {
             steps {
